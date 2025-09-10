@@ -43,6 +43,28 @@ Source du job WordCount (Java):
 
 - https://github.com/apache/hadoop/blob/1be78238728da9266a4f88195058f08fd012bf9c/hadoop-mapreduce-project/hadoop-mapreduce-examples/src/main/java/org/apache/hadoop/examples/WordCount.java
 
+## Run WordCount in Python (Hadoop Streaming)
+
+Example mapper/reducer are in `examples/python/wordcount/`.
+
+```bash
+docker exec -it hadoop-master bash -lc '
+   hdfs dfs -rm -r -f /output-streaming && \
+   hdfs dfs -mkdir -p /input && \
+   echo "to be or not to be" > /tmp/text.txt && \
+   hdfs dfs -put -f /tmp/text.txt /input && \
+   cd /workspace && \
+   cp examples/python/wordcount/mapper.py examples/python/wordcount/reducer.py . && \
+   hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-*.jar \
+      -files mapper.py,reducer.py \
+      -mapper "python3 mapper.py" \
+      -reducer "python3 reducer.py" \
+      -input /input \
+      -output /output-streaming && \
+   hdfs dfs -cat /output-streaming/part-00000
+'
+```
+
 ## Optional: verify HDFS
 
 ```bash

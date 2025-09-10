@@ -6,7 +6,7 @@ ENV HADOOP_VERSION=3.3.6 \
     JAVA_HOME=/usr/local/openjdk-8 \
     PATH=$PATH:/opt/hadoop/bin:/opt/hadoop/sbin
 
-RUN apt-get update && apt-get install -y curl bash procps supervisor && rm -rf /var/lib/apt/lists/* \
+RUN apt-get update && apt-get install -y curl bash procps supervisor python3 && rm -rf /var/lib/apt/lists/* \
  && curl -L https://downloads.apache.org/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz \
  | tar -xz -C /opt && mv /opt/hadoop-${HADOOP_VERSION} ${HADOOP_HOME}
 
