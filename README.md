@@ -65,6 +65,51 @@ docker exec -it hadoop-master bash -lc '
 '
 ```
 
+## PageRank en Python (Hadoop Streaming)
+
+Un exemple complet (scripts + instructions) est disponible dans `examples/python/pagerank/`.
+
+Pour un essai rapide depuis le conteneur master:
+
+```bash
+docker exec -it hadoop-master bash -lc '
+   cd /workspace/examples/python/pagerank && \
+   export N=4 DAMPING=0.85 PR0=1.0 && \
+   hdfs dfs -rm -r -f /pr_input /pr_iter0 /pr_iter1 /pr_iter2 /pr_iter3 || true && \
+   hdfs dfs -mkdir -p /pr_input && \
+   printf "A\tB,C\nB\tC\nC\tA\nD\tC\n" | hdfs dfs -put - /pr_input/graph.txt && \
+   # attach PR0
+   hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-*.jar \
+      -D stream.num.map.output.key.fields=1 \
+      -input /pr_input \
+      -output /pr_iter0 \
+      -mapper "python3 attach_pr.py" \
+      -reducer cat \
+      -files attach_pr.py && \
+   # 3 iterations
+   for i in 1 2 3; do \
+      prev=$((i-1)); \
+      hdfs dfs -rm -r -f /pr_iter${i} || true; \
+      hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-*.jar \
+         -D stream.num.map.output.key.fields=1 \
+         -input /pr_iter${prev} \
+         -output /pr_iter${i} \
+         -mapper "python3 mapper.py" \
+         -reducer "python3 reducer.py" \
+         -files mapper.py,reducer.py \
+         -cmdenv N=$N -cmdenv DAMPING=$DAMPING; \
+      hdfs dfs -cat /pr_iter${i}/part-* | head -n 10; \
+   done && \
+   echo "-- Top by PR --" && \
+   hdfs dfs -cat /pr_iter3/part-* | sort -k2,2gr | head -n 10
+'
+```
+
+Notes:
+- Exemple minimal: ne redistribue pas la masse des noeuds pendants.
+- Voir `examples/python/pagerank/README.md` pour plus de détails.
+
+
 ## Optional: verify HDFS
 
 ```bash
