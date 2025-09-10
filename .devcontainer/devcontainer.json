@@ -1,0 +1,10 @@
+{
+  "name": "Hadoop 3 nodes (Codespaces)",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest"
+    }
+  },
+  "forwardPorts": [9870, 8088, 19888],
+  "postCreateCommand": "docker compose up -d --build"
+}

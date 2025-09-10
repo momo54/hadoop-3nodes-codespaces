@@ -1,0 +1,14 @@
+<configuration>
+  <property>
+    <name>dfs.replication</name>
+    <value>__REPL__</value>
+  </property>
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>file:/hadoop/nn</value>
+  </property>
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:/hadoop/dn</value>
+  </property>
+</configuration>
